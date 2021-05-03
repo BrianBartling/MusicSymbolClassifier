@@ -181,6 +181,9 @@ def train_model(dataset_directory: str, model_name: str, stroke_thicknesses: Lis
     test_data_generator.reset()
     file_names = test_data_generator.filenames
     class_labels = os.listdir(os.path.join(image_dataset_directory, "test"))
+
+    print("Using class labels: ", class_labels)
+    
     # Notice that some classes have so few elements, that they are not present in the test-set and do not
     # appear in the final report. To obtain the correct classes, we have to enumerate all non-empty class
     # directories inside the test-folder and use them as labels

@@ -24,25 +24,25 @@ def test_model(model_path: str, image_paths: List[str]):
     classifier = load_model(model_path)
     classifier.summary()
 
-    input_shape = classifier.input_shape[1:4]  # For some reason, input-shape has the form (None, 1, 2, 3)
+    input_shape = classifier.input_shape [1:3] # For some reason, input-shape has the form (None, 1, 2, 3)
     print(" Input shape: {0}, Output: {1} classes".format(input_shape, classifier.output_shape[1]))
 
     for image_path in image_paths:
         input_image = imageio.imread(image_path, as_gray=False, pilmode="RGB")
         print("\nLoading image {0} of shape {1}".format(image_path, input_image.shape))
 
-        # print("Preprocessing image ...")
-        # print("  Resizing to 224x128x3")
-        # normalized_input_image = imresize(input_image, size=(192, 96, 3))
-        # normalized_input_image = normalized_input_image.astype(numpy.float32)
-        # input_image = normalized_input_image
-        #
-        # print(" Result: shape: {0}, dtype: {1}, mean: {2:.3f}, std: {3:.3f}".format(normalized_input_image.shape,
-        #                                                                             normalized_input_image.dtype,
-        #                                                                             numpy.mean(normalized_input_image),
-        #                                                                             numpy.std(normalized_input_image)))
-        #
-        # Image.fromarray(normalized_input_image.astype(numpy.uint8), mode="RGB").save("normalized_input.png")
+        print("Preprocessing image ...")
+        print("  Resizing to " + str(input_shape))
+        normalized_input_image = Image.fromarray(input_image).resize(input_shape)
+        normalized_input_image_array = numpy.asarray(normalized_input_image, dtype=numpy.float32)
+        input_image = normalized_input_image_array
+        
+        print(" Result: shape: {0}, dtype: {1}, mean: {2:.3f}, std: {3:.3f}".format(normalized_input_image_array.shape,
+                                                                                    normalized_input_image_array.dtype,
+                                                                                    numpy.mean(normalized_input_image_array),
+                                                                                    numpy.std(normalized_input_image_array)))
+        
+        # Image.fromarray(normalized_input_image_array.astype(numpy.uint8), mode="RGB").save("normalized_input.png")
 
 
         # plot_model(classifier, to_file='classifier.png')
@@ -70,7 +70,7 @@ def test_model(model_path: str, image_paths: List[str]):
                                                                         scores[class_with_highest_probability]))
 
         red = (255, 0, 0)
-        image_with_bounding_box = Image.fromarray(input_image)
+        image_with_bounding_box = normalized_input_image
         draw = ImageDraw.Draw(image_with_bounding_box)
         if bounding_box:
             rectangle = (bounding_box[0], bounding_box[1], bounding_box[0] + bounding_box[2],
@@ -106,7 +106,7 @@ if __name__ == "__main__":
         sys.exit(-1)
 
     if args.image_directory:
-        class_names = os.listdir(args.image_directory)
+        class_names = sorted(os.listdir(args.image_directory))
     else:
         class_names = ['12-8-Time',
                        '2-2-Time',
